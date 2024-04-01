@@ -129,3 +129,53 @@ export const npm_publish_log = async (packageList: EntriesType[], registry?: str
 
   return Promise.resolve(true)
 }
+
+
+/**注册地址展示*/
+export const npm_publish_registry_log = async (packageList: EntriesType[], registry?: string) => {
+  const list: string[] = []
+  let max = 0
+  /**判断发布包地址是否正确*/
+  const registryList = Array.from(new Set(packageList.map((ite) => {
+    const newRegistry: string = registry || (ite?.manifest as any)?.registry || 'https://registry.npmjs.org'
+    if (newRegistry) {
+      return newRegistry.replace(/\/$/g, '')
+    }
+    return newRegistry
+  })))
+  let isEach = registryList.length > 1
+
+  if (isEach) {
+    packageList.forEach((item) => {
+      let text = ''
+      const versionText = `${chalk.cyanBright(item.oldVersion)} ${chalk.blueBright("=>")} ${chalk.greenBright(item.version)}`
+      if (item.private) {
+        text = " 🍄 " + `${chalk.yellowBright(item.name)}${chalk.whiteBright(":")} ${versionText}` + ` (${chalk.red("private")})`
+      } else {
+        const newRegistry: string = registry || (item?.manifest as any)?.registry || 'https://registry.npmjs.org'
+        text = " 🍀 " + `${chalk.greenBright(item.name)}${chalk.whiteBright(":")} ${versionText}` + ` NPM registry:${newRegistry}`
+      }
+      if (text.length > max) {
+        max = text.length
+      }
+      list.push(`${text}`)
+    })
+  }
+
+  if (list.length) {
+    console.log('')
+    console.log("🐹🐹 " + chalk.rgb(0, 255, 127)(`NPM registry: ${registry || 'https://registry.npmjs.org'}`))
+    console.log("🐹🐹 " + chalk.rgb(0, 255, 127)(`变更：`))
+    console.log('')
+    list.forEach(text => {
+      console.log(text)
+    })
+    console.log('')
+    return await node_prompt(`是否进行发布？`)
+  } else {
+    console.log('')
+    console.log("🐹🐹 " + chalk.rgb(0, 255, 127)(`NPM registry: ${registry || 'https://registry.npmjs.org'}`))
+    console.log('')
+    return await node_prompt(`是否按照当前地址进行发布？`)
+  }
+}

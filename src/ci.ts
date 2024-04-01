@@ -10,7 +10,7 @@ import loading from "loading-cli"
 import { formatVersion } from "./publish/checkVersion"
 import { getWorkspaces } from "./publish/getWorkspaces"
 import { getPackages } from "./publish/getPackages"
-import { npm_publish, npm_publish_log } from "./publish/publish"
+import { npm_publish, npm_publish_log, npm_publish_registry_log } from "./publish/publish"
 import { createTags } from "./publish/createTags"
 import { npm_build } from "./publish/npm_build"
 import { presetsVersion } from "./publish/presetsVersion"
@@ -32,6 +32,7 @@ function help() {
   console.log('\n  Displays help information.');
   console.log('\n  Options:\n');
   console.log('   --registry                  ', 'npm registry address.');
+  console.log('   --version                  ', 'package version.');
 
   console.log('\n  Example:\n');
   console.log('   $ \x1b[35mknp\x1b[0m publish');
@@ -81,6 +82,9 @@ const main = async () => {
           const result = await npm_publish_log(packages, registry)
           if (!result) return
           await presetsVersion(packages, versionNumber)
+        } else {
+          const result = await npm_publish_registry_log(packages, registry)
+          if (!result) return
         }
         console.log("")
         await createTags(tagVersion)
