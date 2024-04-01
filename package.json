@@ -10,7 +10,8 @@
   "files": [
     "lib",
     "src",
-    "bin"
+    "bin",
+    "tsconfig.json"
   ],
   "bin": {
     "knp": "./bin/knp"
